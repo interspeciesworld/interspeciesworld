@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="An Interspecies World: explore what the ethics literature says about AI that lets humans and animals talk, and play out the next 25 years.">
+<style>html,body{margin:0}</style>
+</head>
+<body>
+<title>An Interspecies World</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Unbounded:wght@400;500;600&display=swap">
+<style>
+/* Layout: a sticky signal-line nav over six pages. Reading pages sit in a 720px column; the two games use the full 1180px width with their own world panels. Pink = the animal signal, green = the human signal, shared with both games. */
+:root{
+  --bg:#F7F3F6; --surface:#FFFFFF; --fg:#16201B; --muted:#58635D; --line:#E6DCE3;
+  --pink:#C8296F; --pink-soft:#FBE3EE; --green:#127E54; --green-soft:#DCF1E6; --on-accent:#FFFFFF;
+  --sg:#1E6B4C; --sg-bg:#DDEFE5; --su:#3D5E86; --su-bg:#E3EAF4; --sb:#A33A2C; --sb-bg:#F6E1DB; --sn:#6A6457; --sn-bg:#EFEBE4;
+  --ink:#14161A; --on-ink:#FFFFFF; --veil:rgba(22,32,27,.45);
+  --todo-bg:#FFF0A6; --todo-fg:#3A2F00;
+  --f-display:"Unbounded", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --navh:58px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1210; --surface:#141B17; --fg:#EAF0EC; --muted:#97A29C; --line:#25302A;
+    --pink:#FF7DB6; --pink-soft:#3A1828; --green:#4FD69B; --green-soft:#0F2E1F; --on-accent:#0D1210;
+    --sg:#7AD8A8; --sg-bg:#15342A; --su:#9BBBE6; --su-bg:#1A2A3E; --sb:#F2A08D; --sb-bg:#3D1F19; --sn:#C9C2AF; --sn-bg:#25241F;
+    --ink:#EEF2EF; --on-ink:#0D1210; --veil:rgba(0,0,0,.6);
+    --todo-bg:#4A3F05; --todo-fg:#FFF0A6;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1210; --surface:#141B17; --fg:#EAF0EC; --muted:#97A29C; --line:#25302A;
+  --pink:#FF7DB6; --pink-soft:#3A1828; --green:#4FD69B; --green-soft:#0F2E1F; --on-accent:#0D1210;
+  --sg:#7AD8A8; --sg-bg:#15342A; --su:#9BBBE6; --su-bg:#1A2A3E; --sb:#F2A08D; --sb-bg:#3D1F19; --sn:#C9C2AF; --sn-bg:#25241F;
+  --ink:#EEF2EF; --on-ink:#0D1210; --veil:rgba(0,0,0,.6);
+  --todo-bg:#4A3F05; --todo-fg:#FFF0A6;
+  color-scheme:dark;
+}
+@media (max-width:980px){ :root{ --navh:100px } }
+@media (max-width:760px){ :root{ --navh:0px } }
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{scroll-padding-top:calc(var(--navh) + 16px)}
+body{background:var(--bg); color:var(--fg); font-family:var(--f-body); font-size:17px; line-height:1.6}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top, 0px); z-index:30; background:var(--bg)}
+body.s-locked{overflow:hidden}
+h1,h2,h3,h4{font-family:var(--f-display); font-weight:500; text-wrap:balance; margin:0; letter-spacing:-0.01em; line-height:1.15}
+p{margin:0}
+a{color:var(--green)}
+:focus-visible{outline:2px solid var(--green); outline-offset:3px}
+
+/* nav */
+.s-nav{position:sticky; top:env(safe-area-inset-top, 0px); z-index:20; background:var(--bg); border-bottom:1px solid var(--line)}
+.s-nav-in{max-width:1180px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:10px; display:flex; align-items:center; flex-wrap:wrap; gap:6px 20px}
+.s-brand{display:inline-flex; align-items:center; gap:10px; font-family:var(--f-display); font-weight:500; font-size:.92rem; color:var(--fg); text-decoration:none; white-space:nowrap}
+.s-brand svg{width:24px; height:24px; flex:none}
+.s-proto{font-family:var(--f-mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--pink); border:1px dashed var(--pink); border-radius:999px; padding:1px 8px}
+.s-links{display:flex; gap:2px; margin-left:auto; overflow-x:auto; scrollbar-width:none; min-width:0; max-width:100%}
+.s-links::-webkit-scrollbar{display:none}
+.s-links a{font-size:.86rem; padding:7px 12px; border-radius:999px; color:var(--muted); text-decoration:none; white-space:nowrap}
+.s-links a:hover{color:var(--fg); background:var(--surface)}
+.s-links a[aria-current="page"]{color:var(--fg); background:var(--surface); box-shadow:inset 0 0 0 1px var(--line); font-weight:700}
+@media (max-width:980px){ .s-links{margin-left:0; flex:1 1 100%} .s-links a{padding:6px 10px} }
+@media (max-width:760px){
+  .s-nav{position:static}
+  .s-links{flex-wrap:wrap; overflow:visible; gap:4px}
+  .s-links a{padding:5px 11px; border:1px solid var(--line)}
+}
+
+/* page frames */
+.s-wrap{max-width:1180px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:28px 80px}
+.s-game{max-width:1180px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:16px 80px; min-height:60vh}
+.s-col{max-width:720px; display:flex; flex-direction:column; gap:44px}
+.s-sec{display:flex; flex-direction:column; gap:14px; min-width:0}
+.s-sec h2{font-size:clamp(1.3rem, 3.2vw, 1.7rem)}
+.s-sec h3{font-size:1.02rem}
+.s-h4{font-size:.92rem; margin-top:8px}
+.s-eyebrow{font-family:var(--f-mono); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.s-lead{font-size:1.15rem}
+.s-small{font-size:.9rem}
+.s-muted{color:var(--muted)}
+.s-row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.s-list{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px}
+.s-steps{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:8px}
+.s-note{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; font-size:.93rem}
+.s-todo{background:var(--todo-bg); color:var(--todo-fg); border-radius:4px; padding:1px 6px; font-family:var(--f-mono); font-size:.86em; box-decoration-break:clone; -webkit-box-decoration-break:clone}
+.s-def{display:grid; grid-template-columns:minmax(0,9rem) minmax(0,1fr); gap:10px 18px; margin:0}
+.s-def dt{font-family:var(--f-mono); font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding-top:3px}
+.s-def dd{margin:0}
+@media (max-width:560px){ .s-def{grid-template-columns:1fr; gap:2px} .s-def dd{margin-bottom:10px} }
+
+/* buttons */
+.s-btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:999px; padding:12px 22px; border:1px solid transparent; cursor:pointer; font:inherit; font-weight:700; font-size:1rem; text-decoration:none; line-height:1.2}
+.s-btn-ink{background:var(--ink); color:var(--on-ink)}
+.s-btn-soft{background:var(--surface); color:var(--fg); border-color:var(--line); font-weight:400}
+.s-btn-soft:hover{border-color:var(--muted)}
+.s-btn-pink{background:var(--pink); color:var(--on-accent)}
+.s-btn-sm{padding:7px 14px; font-size:.88rem}
+.s-btn[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--green)}
+
+/* about */
+.s-hero{display:flex; flex-direction:column; gap:18px; padding-top:20px; max-width:860px}
+.s-hero h1{font-size:clamp(2.3rem, 7.6vw, 4.4rem); letter-spacing:-0.025em; font-weight:500}
+.s-wave{width:100%; height:120px; display:block}
+.s-doors{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; margin-top:34px}
+@media (max-width:760px){ .s-doors{grid-template-columns:1fr} }
+.s-door{background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:22px; display:flex; flex-direction:column; gap:12px; min-width:0}
+.s-door-top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.s-door-top svg{width:58px; height:18px; flex:none}
+.s-door h2{font-size:clamp(1.3rem, 3vw, 1.6rem)}
+.s-door p{color:var(--muted)}
+.s-door .s-row{margin-top:auto; padding-top:6px}
+.s-meta{font-family:var(--f-mono); font-size:.76rem; color:var(--muted)}
+.s-about{margin-top:56px}
+.s-contact{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 20px; display:flex; flex-direction:column; gap:10px}
+.s-addr{font-family:var(--f-mono); font-size:1rem; user-select:all; overflow-wrap:anywhere}
+
+/* prose (literature review) */
+.s-prose{max-width:720px}
+.s-prose > * + *{margin-top:1em}
+.s-prose h1{font-size:clamp(1.7rem, 4.6vw, 2.5rem)}
+.s-prose h2{font-size:1.25rem; margin-top:2em}
+.s-prose sup a{text-decoration:none; font-family:var(--f-mono); font-size:.75em; padding:0 2px}
+.s-bib{list-style:none; padding:0; display:flex; flex-direction:column; gap:12px; font-size:.93rem}
+.s-bib li{padding-left:1.6em; text-indent:-1.6em; overflow-wrap:anywhere}
+.s-fn{font-size:.88rem; color:var(--muted); padding-left:20px}
+.s-fn li + li{margin-top:4px}
+
+/* tables and details */
+.s-tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--surface)}
+.s-table{border-collapse:collapse; width:100%; min-width:620px; font-size:.86rem}
+.s-table th, .s-table td{text-align:left; vertical-align:top; padding:9px 12px; border-bottom:1px solid var(--line)}
+.s-table thead th{font-family:var(--f-mono); font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:500}
+.s-table tbody tr:last-child td{border-bottom:0}
+.s-table td.num, #present-app td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
+details.s-details{border:1px solid var(--line); border-radius:14px; background:var(--surface)}
+details.s-details > summary{cursor:pointer; padding:14px 16px; font-weight:700; list-style-position:inside}
+details.s-details > .s-tablewrap{border:0; border-top:1px solid var(--line); border-radius:0 0 14px 14px}
+.s-src{display:inline-block; font-family:var(--f-mono); font-size:.66rem; border-radius:4px; padding:1px 6px; background:var(--sn-bg); white-space:nowrap}
+.s-src-rating{background:var(--sg-bg)} .s-src-pig{background:var(--su-bg)} .s-src-design{background:var(--green-soft)} .s-src-lit{background:transparent; box-shadow:inset 0 0 0 1px var(--muted)}
+.s-fx{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:3px}
+.s-basis{font-family:var(--f-mono); font-size:.64rem; color:var(--muted); white-space:nowrap}
+
+/* statistics */
+.s-legend{display:flex; flex-wrap:wrap; gap:6px 18px; font-size:.84rem; color:var(--muted)}
+.s-legend span{display:inline-flex; align-items:center; gap:7px}
+.s-sw{width:14px; height:10px; border-radius:3px; display:inline-block; flex:none}
+.s-metrics{display:flex; flex-direction:column; gap:16px}
+.s-metric{display:flex; flex-direction:column; gap:4px}
+.s-metric-label{font-size:.93rem}
+.s-barrow{display:grid; grid-template-columns:5.4rem minmax(0,1fr) 3rem; align-items:center; gap:10px}
+.s-barname{font-family:var(--f-mono); font-size:.7rem; color:var(--muted)}
+.s-track{height:10px; border-radius:5px; background:var(--sn-bg); overflow:hidden}
+.s-fill{display:block; height:100%; border-radius:5px}
+.s-fill-p{background:var(--pink)}
+.s-fill-b{background:repeating-linear-gradient(135deg, var(--su) 0 4px, color-mix(in srgb, var(--su) 45%, var(--surface)) 4px 7px)}
+.s-barval{font-variant-numeric:tabular-nums; font-size:.86rem; text-align:right; color:var(--fg)}
+.s-compare{display:flex; flex-direction:column; gap:10px; max-width:820px}
+
+/* modal */
+.s-modal{position:fixed; inset:0; z-index:40; background:var(--veil); display:flex; align-items:center; justify-content:center; padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); overflow-y:auto}
+.s-modal-card{background:var(--surface); color:var(--fg); border-radius:22px; padding:26px; max-width:520px; width:100%; display:flex; flex-direction:column; gap:14px; box-shadow:0 18px 60px rgba(0,0,0,.25)}
+.s-modal-card h2{font-size:1.35rem}
+.s-modal-actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:4px}
+.s-modal-actions .s-btn{min-width:8.5rem}
+
+/* footer */
+.s-footer{border-top:1px solid var(--line)}
+.s-footer-in{max-width:1180px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:22px 34px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px 24px; font-size:.86rem; color:var(--muted)}
+.s-footer a{color:var(--muted)}
+
+/* games: shared adjustments inside the site */
+#present-app .g-title, #future-app .g-title{font-size:clamp(1.8rem, 5vw, 2.6rem)}
+#present-app header.top, #future-app header.top{padding-top:6px}
+#present-app .playgrid .world, #future-app .playgrid .world{top:calc(var(--navh) + 14px); max-height:calc(100vh - var(--navh) - 28px)}
+#present-app .hero, #future-app .hero{padding-top:28px}
+
+/* The present: explorer layout (setup beside the world, as in the project's first explorer) */
+#present-app .x-intro{padding-top:22px; max-width:860px}
+#present-app .g-title-long{font-size:clamp(1.45rem, 3.4vw, 2.15rem); line-height:1.2}
+#present-app .x-layout{display:grid; grid-template-columns:290px minmax(0,1fr); gap:22px; align-items:start; margin-top:26px}
+@media (max-width:980px){ #present-app .x-layout{grid-template-columns:minmax(0,1fr)} }
+#present-app .panel{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:10px; min-width:0}
+#present-app .x-setup{gap:12px}
+@media (min-width:981px){ #present-app .x-setup{position:sticky; top:calc(var(--navh) + 14px); max-height:calc(100vh - var(--navh) - 28px); overflow:auto} }
+#present-app .x-setup h4{font-size:.82rem}
+#present-app .field{display:flex; flex-direction:column; gap:4px; min-width:0}
+#present-app .field label{font-size:.84rem; color:var(--muted)}
+#present-app select, #present-app input[type="number"]{font:inherit; font-size:.9rem; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:7px 9px; width:100%; min-width:0}
+#present-app input[type="range"]{width:100%; accent-color:var(--green)}
+#future-app .noise-field{display:flex; flex-direction:column; gap:4px; max-width:380px}
+#future-app .noise-field label{font-size:.84rem; color:var(--muted)}
+#future-app .noise-field input[type="range"]{width:100%; accent-color:var(--green)}
+#present-app details{border-top:1px solid var(--line); padding-top:10px}
+#present-app details summary{cursor:pointer; font-size:.9rem; font-weight:700}
+#present-app details .inner{display:flex; flex-direction:column; gap:10px; padding-top:10px}
+#present-app .btn:disabled{opacity:.45; cursor:default; transform:none}
+#present-app .x-main{display:flex; flex-direction:column; gap:16px; min-width:0}
+#present-app .x-status{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px}
+#present-app .x-choice{border-color:color-mix(in srgb, var(--pink) 45%, var(--line))}
+#present-app .x-opts{display:flex; flex-wrap:wrap; gap:6px}
+#present-app .tg th.rowh{min-width:200px}
+#present-app .cov{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; vertical-align:0; flex:none; border:1.5px solid transparent}
+#present-app .cov-good{background:var(--sg)}
+#present-app .cov-partial{background:var(--su)}
+#present-app .cov-weak{background:transparent; border-color:var(--su)}
+#present-app .cov-none{background:transparent; border-color:var(--muted); border-style:dashed}
+#present-app .x-cov{display:inline-flex; align-items:center; font-family:var(--f-mono); font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted)}
+#present-app .x-h4{font-size:.88rem; margin-top:12px}
+#present-app .x-research{background:var(--bg); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; font-size:.92rem}
+#present-app .x-cols{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px}
+@media (max-width:640px){ #present-app .x-cols{grid-template-columns:minmax(0,1fr)} }
+#present-app .x-batch-grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px 26px}
+@media (max-width:760px){ #present-app .x-batch-grid{grid-template-columns:minmax(0,1fr)} }
+#present-app .x-batch-grid h4{font-size:.86rem}
+#present-app .x-row{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:4px 12px; align-items:center; font-size:.86rem}
+#present-app .x-bar{display:grid; grid-template-columns:minmax(0,1fr) 2.8rem; align-items:center; gap:2px 8px}
+#present-app .x-track{height:9px; border-radius:5px; background:var(--sn-bg); overflow:hidden; display:block}
+#present-app .x-fill{display:block; height:100%; border-radius:5px; background:var(--su)}
+#present-app .x-prev{height:3px}
+#present-app .x-prev .x-fill{background:var(--muted)}
+#present-app .x-val{font-variant-numeric:tabular-nums; text-align:right}
+
+@keyframes fade{from{opacity:.4; transform:translateY(4px)} to{opacity:1; transform:none}}
+#present-app{
+.narrow{max-width:760px}
+h1,h2,h3,h4{font-family:var(--f-display); font-weight:500; text-wrap:balance; margin:0; letter-spacing:-0.01em; line-height:1.15}
+h1{font-size:clamp(2rem, 6vw, 3.1rem)}
+h2{font-size:clamp(1.4rem, 3.6vw, 1.9rem)}
+h3{font-size:1.05rem}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.stack{display:flex; flex-direction:column; gap:16px}
+.stack-sm{display:flex; flex-direction:column; gap:8px}
+.stack-lg{display:flex; flex-direction:column; gap:28px}
+.row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.muted{color:var(--muted)}
+.lead{font-size:1.12rem}
+.small{font-size:.88rem}
+
+/* header */
+header.top{display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line); flex-wrap:wrap}
+.brand{font-family:var(--f-display); font-size:.9rem; font-weight:500; display:flex; align-items:center; gap:10px; background:none; border:0; color:var(--fg); padding:0; cursor:pointer}
+.brand-mark{width:22px; height:22px; flex:none}
+.vtag{font-family:var(--f-mono); font-size:.66rem; letter-spacing:.08em; border:1px solid var(--line); border-radius:999px; padding:1px 7px; color:var(--muted)}
+.top-actions{display:flex; gap:6px; flex-wrap:wrap}
+
+/* buttons */
+button{font:inherit; color:inherit}
+.btn{display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:12px 22px; border:1px solid transparent; cursor:pointer; font-weight:700; font-size:1rem; transition:transform .15s ease, background .15s ease, border-color .15s ease}
+.btn-primary{background:var(--pink); color:var(--on-accent)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent; border-color:var(--line); color:var(--fg)}
+.btn-ghost:hover{border-color:var(--pink)}
+.btn-small{padding:6px 14px; font-size:.85rem; font-weight:400}
+:focus-visible{outline:2px solid var(--green); outline-offset:3px}
+
+/* progress bar */
+.timeline{display:grid; grid-template-columns:54px repeat(7, minmax(0,1fr)); gap:4px; margin-top:16px; align-items:end}
+.tl{display:flex; flex-direction:column; gap:6px; min-width:0}
+.tl-bar{height:4px; border-radius:2px; background:var(--line)}
+.tl.done .tl-bar{background:var(--green)}
+.tl.now .tl-bar{background:var(--pink)}
+.tl-label{font-family:var(--f-mono); font-size:.62rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tl.now .tl-label{color:var(--fg)}
+
+/* intro */
+.hero{padding-top:36px; display:flex; flex-direction:column; gap:20px}
+.wave{width:100%; height:110px; display:block}
+.facts{display:flex; flex-wrap:wrap; gap:8px 22px; font-family:var(--f-mono); font-size:.8rem; color:var(--muted)}
+.note{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 20px}
+.check{display:flex; gap:12px; align-items:flex-start; font-size:.95rem}
+.check input{width:18px; height:18px; margin-top:4px; accent-color:var(--green); flex:none}
+.newlist{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px; font-size:.95rem}
+.linkbtn{background:none; border:0; padding:0; font:inherit; color:var(--green); text-decoration:underline; text-underline-offset:2px; cursor:pointer}
+
+/* pickers */
+.grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
+@media (max-width:560px){ .grid{grid-template-columns:1fr} }
+.pick{text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; cursor:pointer; display:flex; flex-direction:column; gap:4px; min-width:0; transition:border-color .15s ease}
+.pick:hover{border-color:var(--pink)}
+.pick[aria-pressed="true"]{border-color:var(--green); box-shadow:inset 0 0 0 1px var(--green)}
+.pick .k{font-family:var(--f-mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.pick .t{font-family:var(--f-display); font-size:1rem; font-weight:500}
+.pick .d{font-size:.92rem; color:var(--muted)}
+.bio{border-top:1px solid var(--line); padding-top:22px}
+.tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--f-mono); font-size:.72rem; padding:4px 10px; border-radius:999px; background:var(--green-soft); color:var(--fg)}
+.tag.p{background:var(--pink-soft)}
+
+/* play layout */
+.playgrid{display:grid; grid-template-columns:minmax(0,1fr); gap:28px; margin-top:6px}
+@media (min-width:1000px){
+  .playgrid{grid-template-columns:minmax(0,1fr) 380px; align-items:start; gap:40px}
+  .playgrid .world{position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto}
+}
+.scene{padding-top:30px; max-width:700px; min-width:0}
+.frame{border-left:3px solid var(--pink); padding:2px 0 2px 14px}
+.frame .eyebrow{display:block; margin-bottom:2px}
+.choices{display:flex; flex-direction:column; gap:10px}
+.choice{display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 14px; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; cursor:pointer; transition:border-color .15s ease, transform .15s ease}
+.choice:hover{border-color:var(--pink); transform:translateX(2px)}
+.choice .key{font-family:var(--f-mono); font-size:.8rem; color:var(--pink); padding-top:2px}
+.choice .lbl{font-weight:700}
+.choice .sub{grid-column:2; font-size:.82rem; color:var(--muted); font-family:var(--f-mono); line-height:1.45}
+.readout{grid-column:2; font-family:var(--f-mono); font-size:.8rem; color:var(--green); letter-spacing:.02em}
+.chosen{border:1px solid var(--green); background:var(--green-soft); border-radius:16px; padding:16px 18px}
+.changes{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px}
+.changes li{display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:.92rem}
+.changes .who{font-family:var(--f-mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.arrow{color:var(--muted)}
+.meanwhile{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; font-size:.92rem}
+.meanwhile .reason{display:block; color:var(--muted); font-size:.85rem}
+details.sources{border-top:1px solid var(--line); padding-top:14px}
+details.sources summary{cursor:pointer; font-family:var(--f-mono); font-size:.8rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase}
+details.sources ul{margin:12px 0 0; padding-left:20px; font-size:.92rem}
+details.sources a, .about a{color:var(--green)}
+
+/* state pills */
+.pill{display:inline-flex; align-items:center; gap:5px; font-size:.78rem; line-height:1.3; padding:2px 8px; border-radius:6px; background:var(--sn-bg); color:var(--fg); border:1px solid transparent; max-width:100%; overflow-wrap:anywhere}
+.pill.g{background:var(--sg-bg); border-color:color-mix(in srgb, var(--sg) 35%, transparent)}
+.pill.u{background:var(--su-bg); border-color:color-mix(in srgb, var(--su) 35%, transparent)}
+.pill.b{background:var(--sb-bg); border-color:color-mix(in srgb, var(--sb) 35%, transparent)}
+.pill.n{background:var(--sn-bg); border-color:color-mix(in srgb, var(--sn) 30%, transparent)}
+.pill.idle{background:transparent; border:1px dashed var(--line); color:var(--muted)}
+.pill.ch::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--pink); flex:none}
+
+/* world panel */
+.world{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:14px; min-width:0; margin-top:30px}
+.world-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap}
+.world h3{font-size:.95rem}
+.sgrid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px}
+.spc{border:1px solid var(--line); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:6px; min-width:0}
+.spc.first{border-color:color-mix(in srgb, var(--pink) 55%, var(--line))}
+.spc.idle{border-style:dashed}
+.spc h4{font-size:.8rem; display:flex; justify-content:space-between; gap:6px; align-items:baseline}
+.spc h4 .mini{font-family:var(--f-mono); font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--pink); font-weight:400}
+.kv{display:flex; flex-direction:column; gap:1px; min-width:0}
+.k{font-family:var(--f-mono); font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.wl{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:6px 10px; align-items:center; font-size:.82rem}
+.wl .lab{color:var(--muted)}
+.legend{display:flex; flex-wrap:wrap; gap:6px 12px; font-size:.75rem; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:5px}
+.sw{width:12px; height:12px; border-radius:3px; display:inline-block; border:1px solid var(--line)}
+
+/* timeline view */
+.filters{display:flex; flex-wrap:wrap; gap:6px}
+.chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:5px 12px; font-size:.85rem; cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--green); background:var(--green-soft)}
+.gridwrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+table.tg{border-collapse:separate; border-spacing:0; width:100%; min-width:920px; font-size:.8rem}
+.tg th,.tg td{padding:3px; border-bottom:1px solid var(--line); vertical-align:middle}
+.tg thead th{position:sticky; top:0; background:var(--surface); font-weight:600; text-align:left; padding:8px 4px; z-index:1; font-family:var(--f-mono); font-size:.7rem}
+.tg thead th .yr{display:block; font-weight:400; color:var(--muted)}
+.tg th.rowh{position:sticky; left:0; background:var(--surface); text-align:left; font-weight:400; min-width:170px; padding-left:12px; z-index:2}
+.tg thead th.rowh{z-index:3}
+.tg tr.sec th{background:var(--bg); font-family:var(--f-display); font-weight:500; font-size:.82rem; padding:8px 12px; text-align:left; position:sticky; left:0}
+.tg tr.sec td{background:var(--bg)}
+.cell{display:block; width:100%; min-height:30px; border:1px solid transparent; border-radius:5px; padding:4px 6px; text-align:left; font-size:.75rem; line-height:1.25; color:var(--fg); background:var(--sn-bg); cursor:pointer}
+.cell.g{background:var(--sg-bg); border-color:color-mix(in srgb, var(--sg) 35%, transparent)}
+.cell.u{background:var(--su-bg); border-color:color-mix(in srgb, var(--su) 35%, transparent)}
+.cell.b{background:var(--sb-bg); border-color:color-mix(in srgb, var(--sb) 35%, transparent)}
+.cell.s{background:transparent; border-color:var(--line)}
+.cell.you{border-color:var(--pink); background:var(--pink-soft)}
+.cell.idle{background:transparent; color:var(--muted); border:1px dashed var(--line); cursor:default}
+.cell.empty{background:transparent; cursor:default}
+.cell.changed{box-shadow:inset 3px 0 0 var(--fg)}
+.cell.sel{outline:2px solid var(--green); outline-offset:1px}
+.why{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px}
+.why ul{margin:8px 0 0; padding-left:18px; display:flex; flex-direction:column; gap:4px; font-size:.9rem}
+.src{display:inline-block; font-family:var(--f-mono); font-size:.66rem; letter-spacing:.04em; border-radius:4px; padding:1px 6px; margin-right:6px; vertical-align:1px; background:var(--sn-bg); color:var(--fg)}
+.src.choice{background:var(--pink-soft)}
+.src.rating{background:var(--sg-bg)}
+.src.pig{background:var(--su-bg)}
+.src.design{background:var(--green-soft)}
+.src.lit{background:transparent; box-shadow:inset 0 0 0 1px var(--muted)}
+
+/* report */
+.welfare{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
+@media (max-width:640px){ .welfare{grid-template-columns:1fr} }
+.wcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.wcard .big{font-family:var(--f-display); font-size:1.4rem}
+.wcard ul{margin:0; padding-left:18px; font-size:.9rem; display:flex; flex-direction:column; gap:4px}
+.sgrid4{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px}
+@media (max-width:820px){ .sgrid4{grid-template-columns:repeat(2, minmax(0,1fr))} }
+.themes{display:flex; flex-direction:column}
+.theme-row{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:4px 16px; padding:12px 0; border-bottom:1px solid var(--line); align-items:start}
+.theme-row .nm{font-weight:700}
+.theme-row .ds{font-size:.88rem; color:var(--muted)}
+.theme-row .vals{display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start}
+@media (max-width:560px){ .theme-row{grid-template-columns:1fr} }
+ol.path{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:14px; font-size:.95rem}
+ol.path .eyebrow{display:block}
+ol.path .changes{margin-top:6px}
+.about{padding-top:30px}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+.fade{animation:fade .35s ease both}
+
+}
+#future-app{
+.narrow{max-width:760px}
+h1,h2,h3,h4{font-family:var(--f-display); font-weight:500; text-wrap:balance; margin:0; letter-spacing:-0.01em; line-height:1.15}
+h1{font-size:clamp(2rem, 6vw, 3.1rem)}
+h2{font-size:clamp(1.4rem, 3.6vw, 1.9rem)}
+h3{font-size:1.05rem}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono); font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.stack{display:flex; flex-direction:column; gap:16px}
+.stack-sm{display:flex; flex-direction:column; gap:8px}
+.stack-lg{display:flex; flex-direction:column; gap:28px}
+.row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.muted{color:var(--muted)}
+.lead{font-size:1.12rem}
+.small{font-size:.88rem}
+
+/* header */
+header.top{display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line); flex-wrap:wrap}
+.brand{font-family:var(--f-display); font-size:.9rem; font-weight:500; display:flex; align-items:center; gap:10px; background:none; border:0; color:var(--fg); padding:0; cursor:pointer}
+.brand-mark{width:22px; height:22px; flex:none}
+.vtag{font-family:var(--f-mono); font-size:.66rem; letter-spacing:.08em; border:1px solid var(--line); border-radius:999px; padding:1px 7px; color:var(--muted)}
+.top-actions{display:flex; gap:6px; flex-wrap:wrap}
+
+/* buttons */
+button{font:inherit; color:inherit}
+.btn{display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:12px 22px; border:1px solid transparent; cursor:pointer; font-weight:700; font-size:1rem; transition:transform .15s ease, background .15s ease, border-color .15s ease}
+.btn-primary{background:var(--pink); color:var(--on-accent)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-ghost{background:transparent; border-color:var(--line); color:var(--fg)}
+.btn-ghost:hover{border-color:var(--pink)}
+.btn-small{padding:6px 14px; font-size:.85rem; font-weight:400}
+:focus-visible{outline:2px solid var(--green); outline-offset:3px}
+
+/* progress bar */
+.timeline{display:grid; grid-template-columns:54px repeat(7, minmax(0,1fr)); gap:4px; margin-top:16px; align-items:end}
+.tl{display:flex; flex-direction:column; gap:6px; min-width:0}
+.tl-bar{height:4px; border-radius:2px; background:var(--line)}
+.tl.done .tl-bar{background:var(--green)}
+.tl.now .tl-bar{background:var(--pink)}
+.tl-label{font-family:var(--f-mono); font-size:.62rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tl.now .tl-label{color:var(--fg)}
+
+/* intro */
+.hero{padding-top:36px; display:flex; flex-direction:column; gap:20px}
+.wave{width:100%; height:110px; display:block}
+.facts{display:flex; flex-wrap:wrap; gap:8px 22px; font-family:var(--f-mono); font-size:.8rem; color:var(--muted)}
+.note{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 20px}
+.check{display:flex; gap:12px; align-items:flex-start; font-size:.95rem}
+.check input{width:18px; height:18px; margin-top:4px; accent-color:var(--green); flex:none}
+.newlist{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px; font-size:.95rem}
+.linkbtn{background:none; border:0; padding:0; font:inherit; color:var(--green); text-decoration:underline; text-underline-offset:2px; cursor:pointer}
+
+/* pickers */
+.grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
+@media (max-width:560px){ .grid{grid-template-columns:1fr} }
+.pick{text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; cursor:pointer; display:flex; flex-direction:column; gap:4px; min-width:0; transition:border-color .15s ease}
+.pick:hover{border-color:var(--pink)}
+.pick[aria-pressed="true"]{border-color:var(--green); box-shadow:inset 0 0 0 1px var(--green)}
+.pick .k{font-family:var(--f-mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.pick .t{font-family:var(--f-display); font-size:1rem; font-weight:500}
+.pick .d{font-size:.92rem; color:var(--muted)}
+.bio{border-top:1px solid var(--line); padding-top:22px}
+.tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--f-mono); font-size:.72rem; padding:4px 10px; border-radius:999px; background:var(--green-soft); color:var(--fg)}
+.tag.p{background:var(--pink-soft)}
+
+/* play layout */
+.playgrid{display:grid; grid-template-columns:minmax(0,1fr); gap:28px; margin-top:6px}
+@media (min-width:1000px){
+  .playgrid{grid-template-columns:minmax(0,1fr) 380px; align-items:start; gap:40px}
+  .playgrid .world{position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto}
+}
+.scene{padding-top:30px; max-width:700px; min-width:0}
+.frame{border-left:3px solid var(--pink); padding:2px 0 2px 14px}
+.frame .eyebrow{display:block; margin-bottom:2px}
+.choices{display:flex; flex-direction:column; gap:10px}
+.choice{display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 14px; text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; cursor:pointer; transition:border-color .15s ease, transform .15s ease}
+.choice:hover{border-color:var(--pink); transform:translateX(2px)}
+.choice .key{font-family:var(--f-mono); font-size:.8rem; color:var(--pink); padding-top:2px}
+.choice .lbl{font-weight:700}
+.choice .sub{grid-column:2; font-size:.82rem; color:var(--muted); font-family:var(--f-mono); line-height:1.45}
+.readout{grid-column:2; font-family:var(--f-mono); font-size:.8rem; color:var(--green); letter-spacing:.02em}
+.chosen{border:1px solid var(--green); background:var(--green-soft); border-radius:16px; padding:16px 18px}
+.changes{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:8px}
+.changes li{display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:.92rem}
+.changes .who{font-family:var(--f-mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.arrow{color:var(--muted)}
+.meanwhile{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; font-size:.92rem}
+.meanwhile .reason{display:block; color:var(--muted); font-size:.85rem}
+details.sources{border-top:1px solid var(--line); padding-top:14px}
+details.sources summary{cursor:pointer; font-family:var(--f-mono); font-size:.8rem; color:var(--muted); letter-spacing:.06em; text-transform:uppercase}
+details.sources ul{margin:12px 0 0; padding-left:20px; font-size:.92rem}
+details.sources a, .about a{color:var(--green)}
+
+/* state pills */
+.pill{display:inline-flex; align-items:center; gap:5px; font-size:.78rem; line-height:1.3; padding:2px 8px; border-radius:6px; background:var(--sn-bg); color:var(--fg); border:1px solid transparent; max-width:100%; overflow-wrap:anywhere}
+.pill.g{background:var(--sg-bg); border-color:color-mix(in srgb, var(--sg) 35%, transparent)}
+.pill.u{background:var(--su-bg); border-color:color-mix(in srgb, var(--su) 35%, transparent)}
+.pill.b{background:var(--sb-bg); border-color:color-mix(in srgb, var(--sb) 35%, transparent)}
+.pill.n{background:var(--sn-bg); border-color:color-mix(in srgb, var(--sn) 30%, transparent)}
+.pill.idle{background:transparent; border:1px dashed var(--line); color:var(--muted)}
+.pill.ch::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--pink); flex:none}
+
+/* world panel */
+.world{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:14px; min-width:0; margin-top:30px}
+.world-head{display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap}
+.world h3{font-size:.95rem}
+.sgrid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px}
+.spc{border:1px solid var(--line); border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:6px; min-width:0}
+.spc.first{border-color:color-mix(in srgb, var(--pink) 55%, var(--line))}
+.spc.idle{border-style:dashed}
+.spc h4{font-size:.8rem; display:flex; justify-content:space-between; gap:6px; align-items:baseline}
+.spc h4 .mini{font-family:var(--f-mono); font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--pink); font-weight:400}
+.kv{display:flex; flex-direction:column; gap:1px; min-width:0}
+.k{font-family:var(--f-mono); font-size:.6rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.wl{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:6px 10px; align-items:center; font-size:.82rem}
+.wl .lab{color:var(--muted)}
+.legend{display:flex; flex-wrap:wrap; gap:6px 12px; font-size:.75rem; color:var(--muted)}
+.legend span{display:inline-flex; align-items:center; gap:5px}
+.sw{width:12px; height:12px; border-radius:3px; display:inline-block; border:1px solid var(--line)}
+
+/* timeline view */
+.filters{display:flex; flex-wrap:wrap; gap:6px}
+.chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:5px 12px; font-size:.85rem; cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--green); background:var(--green-soft)}
+.gridwrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+table.tg{border-collapse:separate; border-spacing:0; width:100%; min-width:920px; font-size:.8rem}
+.tg th,.tg td{padding:3px; border-bottom:1px solid var(--line); vertical-align:middle}
+.tg thead th{position:sticky; top:0; background:var(--surface); font-weight:600; text-align:left; padding:8px 4px; z-index:1; font-family:var(--f-mono); font-size:.7rem}
+.tg thead th .yr{display:block; font-weight:400; color:var(--muted)}
+.tg th.rowh{position:sticky; left:0; background:var(--surface); text-align:left; font-weight:400; min-width:170px; padding-left:12px; z-index:2}
+.tg thead th.rowh{z-index:3}
+.tg tr.sec th{background:var(--bg); font-family:var(--f-display); font-weight:500; font-size:.82rem; padding:8px 12px; text-align:left; position:sticky; left:0}
+.tg tr.sec td{background:var(--bg)}
+.cell{display:block; width:100%; min-height:30px; border:1px solid transparent; border-radius:5px; padding:4px 6px; text-align:left; font-size:.75rem; line-height:1.25; color:var(--fg); background:var(--sn-bg); cursor:pointer}
+.cell.g{background:var(--sg-bg); border-color:color-mix(in srgb, var(--sg) 35%, transparent)}
+.cell.u{background:var(--su-bg); border-color:color-mix(in srgb, var(--su) 35%, transparent)}
+.cell.b{background:var(--sb-bg); border-color:color-mix(in srgb, var(--sb) 35%, transparent)}
+.cell.s{background:transparent; border-color:var(--line)}
+.cell.you{border-color:var(--pink); background:var(--pink-soft)}
+.cell.idle{background:transparent; color:var(--muted); border:1px dashed var(--line); cursor:default}
+.cell.empty{background:transparent; cursor:default}
+.cell.changed{box-shadow:inset 3px 0 0 var(--fg)}
+.cell.sel{outline:2px solid var(--green); outline-offset:1px}
+.why{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px}
+.why ul{margin:8px 0 0; padding-left:18px; display:flex; flex-direction:column; gap:4px; font-size:.9rem}
+.src{display:inline-block; font-family:var(--f-mono); font-size:.66rem; letter-spacing:.04em; border-radius:4px; padding:1px 6px; margin-right:6px; vertical-align:1px; background:var(--sn-bg); color:var(--fg)}
+.src.choice{background:var(--pink-soft)}
+.src.rating{background:var(--sg-bg)}
+.src.pig{background:var(--su-bg)}
+.src.design{background:var(--green-soft)}
+.src.lit{background:transparent; box-shadow:inset 0 0 0 1px var(--muted)}
+
+/* report */
+.welfare{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
+@media (max-width:640px){ .welfare{grid-template-columns:1fr} }
+.wcard{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.wcard .big{font-family:var(--f-display); font-size:1.4rem}
+.wcard ul{margin:0; padding-left:18px; font-size:.9rem; display:flex; flex-direction:column; gap:4px}
+.sgrid4{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px}
+@media (max-width:820px){ .sgrid4{grid-template-columns:repeat(2, minmax(0,1fr))} }
+.themes{display:flex; flex-direction:column}
+.theme-row{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:4px 16px; padding:12px 0; border-bottom:1px solid var(--line); align-items:start}
+.theme-row .nm{font-weight:700}
+.theme-row .ds{font-size:.88rem; color:var(--muted)}
+.theme-row .vals{display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start}
+@media (max-width:560px){ .theme-row{grid-template-columns:1fr} }
+ol.path{margin:0; padding-left:22px; display:flex; flex-direction:column; gap:14px; font-size:.95rem}
+ol.path .eyebrow{display:block}
+ol.path .changes{margin-top:6px}
+.about{padding-top:30px}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+.fade{animation:fade .35s ease both}
+
+}
+#future-app a.btn{text-decoration:none}
+
+</style>
+
+<nav class="s-nav" aria-label="Site">
+  <div class="s-nav-in">
+    <a class="s-brand" href="#about" data-nav-home>
+      <svg viewBox="0 0 22 22" aria-hidden="true"><path d="M1 11c2.5-6 5-6 7.5 0s5 6 7.5 0 3.5-4 5 0" fill="none" stroke="var(--pink)" stroke-width="1.6" stroke-linecap="round"/><path d="M1 11c2.5 6 5 6 7.5 0s5-6 7.5 0 3.5 4 5 0" fill="none" stroke="var(--green)" stroke-width="1.6" stroke-linecap="round"/></svg>
+      An Interspecies World <span class="s-proto">Prototype</span>
+    </a>
+    <div class="s-links">
+      <a href="#about" data-nav="about" aria-current="page">About</a>
+      <a href="#present" data-nav="present">The Explorer</a>
+      <a href="#future" data-nav="future">The Role Game</a>
+      <a href="#methodology" data-nav="methodology">Methodology</a>
+      <a href="#literature" data-nav="literature">Literature review</a>
+      <a href="#privacy" data-nav="privacy">Privacy and data</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+<!-- ============ ABOUT ============ -->
+<section data-route="about" class="s-wrap" aria-labelledby="about-title">
+  <div class="s-hero">
+    <span class="s-eyebrow">A Sentient Futures fellowship project</span>
+    <h1 id="about-title">An Interspecies World</h1>
+    <canvas class="s-wave" id="hero-wave" aria-hidden="true"></canvas>
+    <p class="s-lead">AI may soon let us understand what other animals are saying, and answer them. What would we do with that? Explore what current ethical discourse says about it, find the questions it leaves open, and play out how people's (and animals') decisions could shape an interspecies future.</p>
+  </div>
+
+  <div class="s-doors">
+    <article class="s-door">
+      <div class="s-door-top"><span class="s-eyebrow">The present</span><svg viewBox="0 0 58 18" aria-hidden="true"><path d="M1 9c4-7 8-7 12 0s8 7 12 0 8-7 12 0 8 7 12 0 4-4 8 0" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <h2>Explore today's ethics discussions</h2>
+      <p>Step through the world model from 2030 to 2050. Select any part of it to see which rules moved it and what the ethics literature says about it, or where it says nothing yet. Run 200 simulated worlds to see what usually happens.</p>
+      <div class="s-row"><a class="s-btn s-btn-pink" href="#present">Start exploring</a><span class="s-meta">Nothing is saved</span></div>
+    </article>
+    <article class="s-door">
+      <div class="s-door-top"><span class="s-eyebrow">The future</span><svg viewBox="0 0 58 18" aria-hidden="true"><path d="M1 9c2-6 4-6 6 0s3 6 5 0 2-7 4 0 3 5 5 0 4-6 6 0 2 6 4 0 3-5 5 0 4 6 6 0 3-6 5 0" fill="none" stroke="var(--pink)" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <h2>Play the next 25 years</h2>
+      <p>Become a scientist, an activist, a lobbyist, a senator, a tech billionaire or one of the animals. Each decision forks the world, and everyone else responds.</p>
+      <div class="s-row"><a class="s-btn s-btn-pink" href="#future">Start playing</a><span class="s-meta">20 to 25 minutes</span></div>
+    </article>
+  </div>
+
+  <div class="s-col s-about">
+    <section class="s-sec">
+      <h2>How this project came about</h2>
+      <p>An Interspecies World is the outcome of a fellowship with Sentient Futures. Researchers are already using AI to decode the communication of whales, birds and other animals. That raises a question the ethics literature has only started to answer: if we could talk with other species, would it help them, or give us new ways to harm them?</p>
+      <p>To explore it, we built one world model from today's ethics discussions, our own scenario work and a world-building exercise, and turned it into the two experiences on this site.</p>
+    </section>
+    <section class="s-sec">
+      <h2>What it is for</h2>
+      <p>The site lets you explore today's ethics discussions on communication between humans and other species, and see the gaps and unsolved questions they leave. Through role play, it also raises awareness of how we could build an interspecies future, with AI powering communication with other species.</p>
+    </section>
+    <section class="s-sec">
+      <h2>Who it is for</h2>
+      <p>We hope it is a useful tool for anyone who wants to explore a moral circle that includes animals, and for researchers who want to start answering some of the questions current literature leaves open.</p>
+      <p>Every rule in both games shows where it comes from, and the gaps are marked, so you can see where the evidence runs out. <a href="#methodology">Read how we built it</a>.</p>
+    </section>
+    <section class="s-sec">
+      <h2>What we learn from your games</h2>
+      <p>If you agree, we save the choices you make in The future and the world you end up building, with no personal data. Together, the saved games show how people are approaching communication with other species right now. <a href="#privacy">See what we collect and the results so far</a>.</p>
+    </section>
+    <section class="s-sec">
+      <h2>Share your research</h2>
+      <div class="s-contact">
+        <p>Do you know research that should inform the game? We plan to include new evidence in later versions, especially where the literature is silent today: how institutions and companies would respond, what happens when access is taken away, and what animals themselves would do.</p>
+        <p class="s-small s-muted">Contact us at</p>
+        <div class="s-row"><span class="s-addr">interspeciestranslation(at)gmail(dot)com</span><button class="s-btn s-btn-soft s-btn-sm" type="button" data-copy-email><span class="s-copy-label">Copy address</span></button></div>
+      </div>
+    </section>
+    <section class="s-sec">
+      <h2>Credits</h2>
+      <p>Elisa De Pasquale and Yip Fai Tse</p>
+    </section>
+  </div>
+</section>
+
+<!-- ============ THE PRESENT ============ -->
+<section data-route="present" hidden aria-label="The present">
+  <div id="present-app" class="s-game"></div>
+</section>
+
+<!-- ============ THE FUTURE ============ -->
+<section data-route="future" hidden aria-label="The future">
+  <div id="future-app" class="s-game"></div>
+</section>
+
+<!-- ============ METHODOLOGY ============ -->
+<section data-route="methodology" hidden class="s-wrap" aria-labelledby="m-title">
+  <div class="s-col">
+    <div class="s-sec">
+      <span class="s-eyebrow">Methodology</span>
+      <h1 id="m-title" style="font-size:clamp(1.9rem, 5vw, 2.8rem)">How we built the game</h1>
+      <p class="s-lead">Both experiences run on one world model. It describes a possible United States from 2030 to 2050 in which AI can translate animal communication, and how the different stakeholder groups involved might respond.</p>
+    </div>
+
+    <section class="s-sec">
+      <p>Four groups of animals are followed: cetaceans, birds (crows in “The present” game), cats and dogs, and pigs. One group would be successfully “translated” in 2030 and the others a year later.</p>
+      <p>The whole game methodology was co-designed with Claude. The authors used it to build the game interface and its engine, with the authors’ injection of main ideas, and a mostly manually done literature review which gives Claude the idea of what currently existing ethical discourse on the technology is like. The authors believe imagining the potential consequences of AI-enabled interspecies communications could help scholars and policy-makers prepare for, and potentially avoid, some of the most catastrophic scenarios that the current literature has highlighted as possible risks. The authors also injected some of their own extra concerns over the technology which are not yet identified by currently existing ethics literature.</p>
+      <p>The purpose of creating this prototype was to facilitate our thinking, and other people's thinking, around how to avoid scenarios where AI is used to further hurt animals.</p>
+      <p>The purpose of using AI in building the prototype was to bridge our technical deficiencies and come up with a prototype.</p>
+      <p>We hope this will be a point of departure for further research on the future of interspecies communications.</p>
+    </section>
+
+    <section class="s-sec">
+      <h2>Where the prototypes come from</h2>
+      <p>The prototypes have been designed based on a literature review on the ethics of AI-enabled interspecies communications. The literature review can be found <a href="#literature">here</a>. Both researchers used Claude separately to come up with an interactive experience based on the world-building method that could help people imagine the consequences of a future where AI is able to translate animal language.</p>
+      <p>Elisa, with a background in communications, came up with a role-based game by working with her Claude account. Fai, with a background in ethics and philosophical research, came up with a world simulation tool, with his Claude account, that helps people imagine the likelihood of different scenarios, from not likely at all to extremely likely.</p>
+      <p>Upon discussion, we decided to evolve and branch Fai’s prototype into a deterministic simulation tool that helps people navigate what ethics scholarship has already explored, which we call “The present” game. We further developed the role-play game by incorporating the scenario likelihood element from Fai’s prototype, encouraging players to think systemically about how different stakeholder decisions might shape the future of interspecies communication.</p>
+      <p>The decision to collect minimal data about the role-play game is to allow players to compare their experience to what others have built.</p>
+      <dl class="s-def">
+        <dt>Literature review</dt><dd>The literature review document reviews currently existing academic ethics literature on AI-enabled communication with animals, AI ethics and animal ethics. It grounds the literature notes and game engine in “The present” game, and the sources linked from scenes in “The future” game. <a href="#literature">Read the literature review</a>.</dd>
+        <dt>Variable list</dt><dd>The world's fixed backdrop (a US setting from 2030, several AI companies of which one releases its models openly, a strong animal industry), six groups with their incentives and strategies, what is tracked for each species, nine open uncertainties (later expanded through co-working with Claude) and seven outcomes were co-designed by the authors.</dd>
+        <dt>Ratings on how factors influence the world</dt><dd>27 draft judgments of how strongly one state of the world makes another more likely, from −3 to +3, plus if-then rules for what each group does. They are first-pass judgments by the game designers, not findings. If we open-source this project, this should be one thing other contributors can alter and repeat the project with different judgements and assumptions.</dd>
+        <dt>Outside sources</dt><dd>A few studies and news reports from outside the review, such as on ag-gag laws and children's moral circles. These reports were suggested by Claude as part of the co-designing of the methodology. The full list of these sources can be found below.</dd>
+      </dl>
+      <details class="s-details" id="m-outside"><summary>Sources outside the review (13)</summary><div class="s-tablewrap"><table class="s-table"><thead><tr><th scope="col">Source</th><th scope="col">Used in</th></tr></thead><tbody>
+        <tr><td><a href="https://en.wikipedia.org/wiki/Ag-gag" target="_blank" rel="noopener">Ag-gag laws in the United States</a> (Wikipedia)</td><td>The present and The future</td></tr>
+        <tr><td><a href="https://www.nonhumanrights.org/client/happy/" target="_blank" rel="noopener">Happy, an elephant at the Bronx Zoo: the Nonhuman Rights Project's case</a></td><td>The present and The future</td></tr>
+        <tr><td><a href="https://doi.org/10.1177/0956797620960398" target="_blank" rel="noopener">Wilks and others (2021), Children prioritize humans over animals less than adults do</a>, Psychological Science</td><td>The present and The future</td></tr>
+        <tr><td><a href="https://aiweekly.co/alerts/bloomberg-ai-crow-decoder-could-aid-poachers-warn-ethicists" target="_blank" rel="noopener">AI Weekly, on a Bloomberg report that an AI crow decoder could aid poachers</a></td><td>The present</td></tr>
+        <tr><td><a href="https://en.wikipedia.org/wiki/Animal_trial" target="_blank" rel="noopener">Animal trials in medieval and early modern Europe</a> (Wikipedia)</td><td>The future</td></tr>
+        <tr><td><a href="https://en.wikipedia.org/wiki/Anti-literacy_laws_in_the_United_States" target="_blank" rel="noopener">Anti-literacy laws in the United States</a> (Wikipedia)</td><td>The future</td></tr>
+        <tr><td><a href="https://doi.org/10.1038/s41598-022-07174-8" target="_blank" rel="noopener">Briefer and others (2022), Classification of pig calls produced from birth to slaughter</a>, Scientific Reports</td><td>The future</td></tr>
+        <tr><td><a href="https://www.earthspecies.org/" target="_blank" rel="noopener">Earth Species Project: AI research on animal communication</a></td><td>The future</td></tr>
+        <tr><td><a href="https://earthspecies.org/2025/12/15/unlocking-avian-secrets-how-tiny-biologgers-are-revealing-the-hidden-communication-of-carrion-crows/" target="_blank" rel="noopener">Earth Species Project (2025), How tiny biologgers are revealing the hidden communication of carrion crows</a></td><td>The future</td></tr>
+        <tr><td><a href="https://doi.org/10.1016/j.anbehav.2009.12.022" target="_blank" rel="noopener">Marzluff and others (2010), Lasting recognition of threatening people by wild American crows</a>, Animal Behaviour</td><td>The future</td></tr>
+        <tr><td><a href="https://news.mongabay.com/2026/05/from-caws-to-code-ai-helps-decrypt-animal-communication/" target="_blank" rel="noopener">Mongabay (2026), From caws to code: AI helps decrypt animal communication</a></td><td>The future</td></tr>
+        <tr><td><a href="https://www.nonhumanrights.org/" target="_blank" rel="noopener">Nonhuman Rights Project: legal cases for animal personhood</a></td><td>The future</td></tr>
+        <tr><td><a href="https://www.projectceti.org/" target="_blank" rel="noopener">Project CETI: research on sperm whale communication</a></td><td>The future</td></tr>
+      </tbody></table></div></details>
+      <p>Where none of these says anything, the model uses an engine assumption, labelled as such.</p>
+    </section>
+
+    <section class="s-sec" id="m-present">
+      <h2>The present: exploring the model and the ethics literature</h2>
+      <p>The present runs on the same engine as The future, without the story.</p>
+      <p>Nothing in The present is saved.</p>
+      <details class="s-details"><summary>Ethics literature coverage for every part of the prototype</summary><div class="s-tablewrap" id="m-research"><p class="s-small s-muted" style="padding:12px 16px">Loading…</p></div></details>
+    </section>
+
+    <section class="s-sec" id="m-future">
+      <h2>The future: how the world moves</h2>
+      <p>The role play runs on a simplified, step-by-step version of cross-impact analysis, after Weimer-Jehle's Cross-Impact Balance analysis. The world is described by 52 variables, each with a few possible states, plus the moves of six groups. Some variables are shared, such as the accuracy debate or who holds the animals' records. Others are tracked for each species, such as public belief, the animals' trust in humans, access to translators, legal status and welfare.</p>
+      <p>Some of the assumptions that Elisa made when creating the role play are that translations allow animals to learn words from humans and extend their thinking, and that they would keep these capacities even when AI is withdrawn from them. She also assumed that children born with this technology widely available might have a different view of the technology than adults.</p>
+      <p>At each of seven jumps in time:</p>
+      <ol class="s-steps">
+        <li>Each group picks a move by its own if-then rule. Your choice replaces the rule for your group.</li>
+        <li>Every rule whose conditions hold adds weight, from 1 to 3, toward one state of another variable. Your choice adds its own pushes, from 1 to 4.</li>
+        <li>Each variable also gets weight for staying as it is (+2), and a random amount: up to 0.9 by default. You can change this with the Randomness setting before you begin.</li>
+        <li>The state with the most weight wins. The world timeline in the game shows every result and what pushed it.</li>
+      </ol>
+      <p>Full Cross-Impact Balance analysis looks for end states that are consistent with every rule at once. The game steps forward one jump at a time instead, so your choices can change the path.</p>
+      <h3>What each group does</h3>
+      <dl class="s-def">
+        <dt>Tech billionaires</dt><dd>If suppression looks likely, the open-model company releases everything openly. If public belief is high for pets, sell pet translators. Otherwise stay quiet on farming.</dd>
+        <dt>Animal advocates</dt><dd>If bird models exist, chicken charities extend the claim to chickens. If fakes are widespread, campaign carefully. If the accuracy debate leans genuine, or the animals have united, push hard on farmed animals. In the first month, campaign to include animals in AI ethics guidelines. Otherwise partner with tech companies, pushing for AI that benefits animals.</dd>
+        <dt>Academics</dt><dd>If state pressure is rising, protect the animals' records. If the study animals' consent is contested, adopt consent-based, non-invasive methods (PEPP-style). If checkable reports hold up, validate the translations, at a welfare cost to the animals tested. If a species says something rich, argue for higher status. Otherwise dispute.</dd>
+        <dt>Lawmakers</dt><dd>If conflict has arisen, restrict the technology. In the first month, institutions are not ready, so stall. If the accuracy debate leans genuine, regulate research on translated species, once. If researchers adopted voluntary principles at an earlier jump, turn them into law, once. If public belief is high for a species, create standing for it. If the animal industry is lobbying and winning, stall. Otherwise regulate.</dd>
+        <dt>Animal industry</dt><dd>If alternative proteins are cheap, some companies pivot. If pigs' status rises, restrict recording on farms. If pigs are translated and farms are already monitored, use AI to monitor and manage animals. Otherwise deny and lobby.</dd>
+        <dt>Animals</dt><dd>If trust in humans is low or a consent scandal hits, refuse. Under condition 2 with an organized movement, resist. Under condition 1, negotiate. Otherwise engage.</dd>
+      </dl>
+      <h3>How the next scene is chosen</h3>
+      <p>Levels 1 to 4 are the same in every game. Levels 5 to 7 are picked from five scenes using the state of the world at that moment: <em>One voice</em> once any species has lost access and the animals act as one group; <em>The off switch</em> when the technology is under pressure; <em>The children</em> in the 2040s; <em>Home</em> after early words about home or once land claims are raised; and <em>Standing</em> once some species have guardians or strong public belief.</p>
+      <p class="s-small s-muted" id="m-rule-counts"></p>
+      <details class="s-details"><summary>All rules in the world model, with their weights and sources</summary><div class="s-tablewrap" id="m-rules"><p class="s-small s-muted" style="padding:12px 16px">Loading…</p></div></details>
+    </section>
+
+    <section class="s-sec">
+      <h2>How we used AI</h2>
+      <p>We used Claude, Anthropic's AI model, throughout the project:</p>
+      <ul class="s-list">
+        <li>to run the world-building exercise;</li>
+        <li>to discuss the best methodology to transform it into an interactive experience;</li>
+        <li>to check the literature review for grammar and spelling mistakes;</li>
+        <li>to map the literature review onto the world model, and draft candidate rules from it, which we reviewed before they entered the game;</li>
+        <li>to check sources, such as links and DOIs, and to flag any source of content from the game that comes from outside the review;</li>
+        <li>to draft the variable list and the first-pass Phase 2 ratings and group rules, which were then reviewed and corrected;</li>
+        <li>to build the scenario explorer, the role-play game, and this website;</li>
+        <li>to write the scene text from decisions we have made.</li>
+      </ul>
+      <p>The research questions, the choice of sources, the world-building decisions and the final judgments are ours. AI-drafted text and code can contain mistakes, which is one reason every rule shows where it comes from.</p>
+      <p>All the conversations with Claude have been saved and are available for journals or other academic initiatives.</p>    </section>
+
+    <section class="s-sec">
+      <h2>Known limitations and gaps</h2>
+      <p>One of the biggest limitations is that the engines built are based on assumptions that are formed by the judgements of the authors of this work, with the use of Claude. And this certainly carries our biases and potentially wrong understanding.</p>
+      <p>And besides our own judgements being biased or wrong, our judgements were inevitably significantly simplified for the sake of economics and readability of the game. For instance, in “what each group does”, the groups were treated as if each were indeed one coherent group, while in the real world, there are many different kinds of academics (at the very least, scientists, linguists, and ethicists will have very different views on this); and many different species of animals who might react differently to animal communication applications.</p>
+      <p>The literature is strong on ethical concerns and on what should happen. It says much less about what would happen: how lawmakers, companies, advocates and animals would actually behave. It says nothing yet about what we call condition 2, which is when AI designs new words that animals can learn, for ideas like “tomorrow”, “if” and “we”, and gives them simple tools to keep records. Nor does it say anything about children, land claims, animals' records, taking access away, or military use. And it gives no basis for how strong any link in the model should be. That lack of prediction is unsurprising, because it is indeed hard to predict how things will unfold with this kind of technology. We create this clearly limited tool exactly for the purpose of attempting to think about such possible worlds. If our tool is making all the assumptions and predictions wrong, we hope it could at least shed some light on what a right approach should or should not do.</p>
+      <p>Next, we would like an expert panel to rate the links, and new research to fill the gaps. If you know of someone who could help, or if you want to help us, <a href="#about">get in touch</a>.</p>
+    </section>
+  </div>
+</section>
+
+<!-- ============ LITERATURE REVIEW ============ -->
+<section data-route="literature" hidden class="s-wrap" aria-label="Literature review">
+  <article class="s-prose">
+<p class="s-eyebrow">Literature review · November 2026</p>
+<h1>Existing discussions on ethics of AI for interspecies communications</h1>
+<p>AI-enabled interspecies communication sits at the intersection of non-human animal communication research, AI ethics and animal ethics. While there is now substantial evidence that many species possess sophisticated communication systems, and rapidly growing technical work on using AI to interpret them, the ethical literature remains comparatively underdeveloped.</p>
+<p>Ryan and Bossert (2024) wrote on the ethics of “speaking whale”, K&#252;&#231;&#252;kuncular (2025) on the moral implications of AI-mediated dialogue, Alcantara and Andrews (2026) on the research ethics and transformative consequences of translation, and the legal analysis by Rodr&#237;guez-Garavito, Gruber, Nemeth and Beguš (2025), alongside the PEPP Framework (MOTH, 2025) as the first attempt at formal guidelines. This review draws primarily on these sources, situating them within the broader debate on whether AI ethics should include animals at all (Singer &amp; Tse, 2023; Coghlan &amp; Parker, 2023; Bossert &amp; Hagendorff, 2023).</p>
+<h2>Can animals talk?</h2>
+<p>K&#252;&#231;&#252;kuncular (2025) lists a series of studies that prove that animal communication is far more complex than humans used to believe, including unique vocalisation for individuals, dialect, and culture-like transmission. Gzegorzewski, Mamzer, and Kuchtar (2026)argue that the central question should not be whether an animal can “speak”, linguistically, but how it communicates emotions, intentions, and needs, and how humans can learn to interpret and respond to these signals responsibly.</p>
+<h2>From recognition to interpretation</h2>
+<p>Rodriguez-Garavito et al., (2025) observe that several prominent design features of human language have been observed in nonhuman animal communications, including the use of symbols and compositionality. However, they treat the issue of animal communication being recognised as language, and the possibility of this language to be understood by humans as two events that could happen independently from one another. They also explore how an understanding of communication content may help reconceptualize cetaceans as legal persons with inherent rights and interests, and the prospect of affording new legal rights to cetaceans through the lens of two human rights: the right to be free from torture and other cruel treatment, and the right to participate in cultural life.</p>
+<p>Alcantara and Andrews observe that there is a risk that AI translation reinforces an anthropocentric assumption. Humans determine what data are collected, how models are trained and how outputs are interpreted. Unlike human participants affected by biased technologies, animals cannot easily address misunderstanding. Nor are there bilingual individuals against whom translations can ultimately be verified. And arguably, animals could be given a moral standing based on what we already know about their complex relationships and communications. Taking into consideration how K&#252;&#231;&#252;kuncular (2025) warns about translations being favoured because they make animals sound human-like, we can raise a fundamental question: are we developing technology that enables humans to hear animals, or technology that translates animals into categories humans already understand?</p>
+<h2>Risks of interspecies communications</h2>
+<p>According to K&#252;&#231;&#252;kuncular, the primary concern is translation accuracy. Even highly sophisticated AI systems might misinterpret animal signals, attributing incorrect meanings to sounds or gestures. Moreover, even a perfectly accurate translation would not guarantee genuine understanding, as it could miss motives or cultural context. Such errors could have serious consequences; for example, improperly translated messages might distress animals or provoke unintended confusion</p>
+<p>Mamzer, Kuchtar and Gzegorzewski note that from an evolutionary perspective, communication increases a species’ ability to survive and reproduce. The ethical stakes become greater when AI moves from interpreting animal signals to enabling humans to respond. Humans would no longer simply be observing another species&#39; communication but potentially entering its social world.</p>
+<p>Another risk K&#252;&#231;&#252;kuncular points out is that of a regression to a language-based hierarchy of moral worth, creating a two-tier system of speaking vs voiceless. One could argue that this would not be a regression but an intensification. Translation technology would not create the two-tier system so much as redraw its boundary, promoting a handful of species into the speaking tier while leaving the vast majority of animals exactly where they are today.</p>
+<h2>Positive impact on animals should be the ethical goal</h2>
+<p>In 2023, Bossert argues that an anthropocentric perspective on Sustainable Development and sustainable AI falls short when ignoring the human treatment of animals, since this treatment manifests itself in an industry that needs to be perceived as a highly unsustainable industry.</p>
+<p>She observes that pressing current socio-environmental crises like climate change or biodiversity loss are related to the prevalent human treatment of animals: emissions from global animal agriculture are driving climate change, deforestation for grazing and animal food crops contributes to biodiversity loss, and keeping many animals in (too) confined spaces can lead to pandemic outbreaks. Separately, Bossert affirms that the capacity to reason should be irrelevant to whether or not an individual is considered from a justice perspective.</p>
+<p>Coghlan and Parker argue that developing and using AI to improve animal wellbeing and promote positive dimensions in animal lives should be a vital ethical goal. They identify various pathways by which AI may harm sentient animals. First, there are intentional harms, both illegal or condemned and legal or socially accepted. For example, AI might be misused to facilitate killing endangered animals or allow farmed animals to be crammed into still smaller spaces at their expense. Second, there are unintentional harms, both direct and indirect. For example, AI or robot ‘caretakers’ might estrange humans from animals and cause us to care less about them.</p>
+<p>Bossert observes that discourse on AI’s impact on animals tends to focus on how AI can avoid harm, rather than directly benefitting the animals. The Bossert, Coghlan and Parker all believe it is crucial to investigate and raise awareness of the benefits that AI could bring to animals, for example by improving veterinary care. Coghlan and Parker also note that AI may well be beneficial for animals and humans alike, but there is also a chance that the benefits will be overrated and the harms great and unnoticed. Given the preponderance of human activities and industries that currently cause severe harm to nonhuman animals, they state that the possibility should not be underestimated.</p>
+<h2>Types of benefits of AI for non human animals</h2>
+<p>Bossert introduces the different categories of AI applications that are used or can be used for benefitting animals as (a) intentional, (b) unintentional—direct, and (c) unintentional—indirect.</p>
+<p>Tse and Singer note that an example of unintentional-direct benefit for animals may come from self-driving cars that lead to fewer roadkills. Bossert notes that unintended indirect beneficial consequences of AI applications for animals currently seem to be rather speculative, like recommendation systems that recommend plant-based dishes for climate change reasons. She lists direct benefits such as AI used to reduce poaching or to profile shelter animals to allow them to find a home. Most projects however, she finds, focus on very basic animal needs, such as shelter, good health, or simply enabling them to stay alive.</p>
+<p>The more sophisticated understanding of the benefits to animals that Bossert calls for is, to her knowledge, not yet found in current projects. She mentions the use of AI systems to enable animals to participate in society (domesticated animals in our society or all animals in the culture of their own population) and she mentions the open research gap for ethicists to develop arguments on how to prioritize between different interests in cases of conflict when applying AI systems.</p>
+<h2>On negative impacts</h2>
+<p>Mamzer, Kuchtar and Gzegorzewski note how language experiments produced scientific breakthroughs but also exposed emotional suffering in research animals. Existing playback research already demonstrates some of the risks of forcing humans into (welcome or unwelcome) relationships with animals: transmitting meaningful signals can cause distress, alter behaviour, affect relationships and potentially undermine animals&#39; expectations of one another. AI-generated signals introduce further possibilities for manipulation, particularly if signals imitate known individuals, raising parallels with human concerns around synthetic media or “deepfakes.”</p>
+<p>More fundamentally, they add, communication may alter the relationship between humans and other species. If humans can participate in animals&#39; communicative practices, questions of consent, autonomy, privacy, manipulation, agency and appropriate participation become difficult to avoid. Researchers agree that more sophisticated translation technology could provide humans with more sophisticated tools for controlling them.</p>
+<h2>Ethics of interspecies communications research</h2>
+<p>Mamzer, Kuchtar and Gzegorzewski write that the ethics of research on communication cannot be reduced to formal compliance with procedures; it must also encompass reflection on the cognitive relationship that arises between humans and the species under study.  They also note how the evolution of ethical principles in science reflects a broader paradigm shift: from an ethics of protection to an ethics of relation. Modern research Ethics should thus not be merely about reducing suffering, they argue, but about creating a shared space for humans and animals—a space in which knowledge, empathy and trust form the basis of co-existence.</p>
+<p>They add that research on interspecies communication shows a growing shift from seeing the animal as a reacting object to recognising it as an active participant in the process of knowing.</p>
+<p>Furthermore, it would be incorrect to frame AI-powered interspecies communications as the first attempt to understand animals: Rodriguez-Garavito, Gruber, Nemeth and Begus extensively write about indigenous practices of interspecies dialogue.</p>
+<h2>Interdisciplinary Applications</h2>
+<p>Mamzer, Kuchtar and Gzegorzewski argue that interspecies communication research must integrate biological knowledge with ethical and social reflection across every field it touches. Biology should read animal communication through multimodal, relational frameworks rather than isolated signals; the humanities, drawing on posthumanists like Braidotti and Wolfe, should recast animals as active co-creators of meaning; veterinary practice should treat the animal as a communicative partner; and research ethics should make participatory, non-invasive methods the norm. AI and bioacoustic tools such as NatureLM-Audio can reveal affective patterns invisible to humans, but only under oversight that serves understanding rather than instrumentalisation. Education and public engagement, finally, should cultivate a relational awareness of animals as sentient beings — a framework the authors say can reshape welfare, conservation and policy by treating affective experience as ethically relevant.</p>
+<h2>The PEPP Framework</h2>
+<p>The PEPP Framework (Prepare, Engage, Prevent, Protect) is the first set of legal and ethical principles specifically for nonhuman animal communication technologies (NACTs). Proposed in 2025 by NYU School of Law’s More-Than-Human Life (MOTH) Program in collaboration with Project CETI, it sets out twelve principles under four pillars covering the full lifecycle of these tools, from research design to deployment and remediation. Adoption is voluntary, but the authors note that many human and Indigenous rights standards began the same way before becoming enforceable norms.</p>
+<h2>Consent, privacy and surveillance</h2>
+<p>K&#252;&#231;&#252;kuncular argues that one immediate implication is the issue of consent, and that we should consider withdrawal from an interaction as a lack of consent. The aim is to avoid coercion and to respect an animal’s evident resistance or refusal.</p>
+<p>According to Bossert observes how AI systems are often surveillance technologies and applied to automatically detect and track farmed animals such as pigs, aiming at an automatic detection of potential health problems without the need of human observation.</p>
+<h2>Legal implications of interspecies communications</h2>
+<p>Rodriguez-Garavito, Gruber, Nemeth and Begus observe that on multiple occasions, scientific findings on nonhuman animal capacities have influenced societal attitudes and shaped laws and policies governing their treatment. For example, evidence of human-like characteristics in nonhuman great apes has also influenced the regulation of nonhuman great ape research. They also affirm that in relation to moral harms, language capacity might elevate cetaceans’ moral status and therefore render certain practices (e.g., captivity) to be considered harmful, even if they would not be proscribed for other nonhuman animals.</p>
+<h2>An emerging question: are we prepared to hear the answer?</h2>
+<p>Tse and Singer (2023) note that animals are currently unable to communicate to humans the harms done to them; Alcantara and Andrews (2026) and K&#252;&#231;&#252;kuncular (2025) take the next step, arguing that the ethical significance of AI-enabled communication lies less in what it enables humans to say to animals than in whether humans are prepared to respond to what animals say back.</p>
+<p>There is currently little research examining what this would look like in practice, including how humans might recognise, interpret and respond to animal demands within existing ethical, legal and political institutions. Successful communication could move humans from observers to participants in multispecies social relationships, potentially creating responsibilities that our existing ethical, legal and political institutions are not prepared to accommodate.</p>
+<p>There are also questions on how interspecies communication would change the perspective humans have of the harm they have inflicted on animals. Rodriguez-Garavito, Gruber, Nemeth and Begus note that the harm humans exact on cetaceans is undeniable, but until we can understand what cetaceans say, whether we appreciate and understand the magnitude and experience of this harm is debatable.</p>
+<h2>Bibliography</h2>
+<ul class="s-bib">
+<li>Alcantara, M., &amp; Andrews, K. (2026). Can we talk to the animals? The ethics of using machine learning to decode animal communication. Topoi. Advance online publication. <a href="https://doi.org/10.1007/s11245-026-10409-2" target="_blank" rel="noopener">https://doi.org/10.1007/s11245-026-10409-2</a></li>
+<li>Bossert, L. N. (2023). Benefitting nonhuman animals with AI: Why going beyond “do no harm” is important. Philosophy &amp; Technology, 36(3). <a href="https://doi.org/10.1007/s13347-023-00658-z" target="_blank" rel="noopener">https://doi.org/10.1007/s13347-023-00658-z</a></li>
+<li>Bossert, L. N., &amp; Hagendorff, T. (2023). The ethics of sustainable AI: Why animals (should) matter for a sustainable use of AI. Sustainable Development, 31(5), 3459–3467. <a href="https://doi.org/10.1002/sd.2596" target="_blank" rel="noopener">https://doi.org/10.1002/sd.2596</a></li>
+<li>Coghlan, S., &amp; Parker, C. (2023). Harm to nonhuman animals from AI: A systematic account and framework. Philosophy &amp; Technology, 36(2), Article 25. <a href="https://doi.org/10.1007/s13347-023-00627-6" target="_blank" rel="noopener">https://doi.org/10.1007/s13347-023-00627-6</a></li>
+<li>Coghlan, S., &amp; Parker, C. (2024). Helping and not harming animals with AI. Philosophy &amp; Technology, 37(1), Article 20. <a href="https://doi.org/10.1007/s13347-024-00712-4" target="_blank" rel="noopener">https://doi.org/10.1007/s13347-024-00712-4</a></li>
+<li>Coghlan, S., Parker, C., &amp; Lederman, R. (2026). AI ethics guidelines: Time to include animals. Science and Engineering Ethics. Advance online publication. <a href="https://doi.org/10.1007/s11948-025-00578-5" target="_blank" rel="noopener">https://doi.org/10.1007/s11948-025-00578-5</a></li>
+<li>Handman, C. (2026). Animal translations: AI and the intelligibility of non-human worlds. Journal of the Royal Anthropological Institute. Advance online publication. <a href="https://doi.org/10.1111/1467-9655.70132" target="_blank" rel="noopener">https://doi.org/10.1111/1467-9655.70132</a></li>
+<li>K&#252;&#231;&#252;kuncular, A. (2025). Ethical implications of AI-mediated interspecies communication. AI and Ethics, 5, 6379–6391. <a href="https://doi.org/10.1007/s43681-025-00828-z" target="_blank" rel="noopener">https://doi.org/10.1007/s43681-025-00828-z</a></li>
+<li>Mamzer, H., Kuchtar, ..., &amp; Grzegorzewski, ... (2026). Animals as communication partners: Ethics and challenges in interspecies language research. Animals, 16(3), Article 375. <a href="https://doi.org/10.3390/ani16030375" target="_blank" rel="noopener">https://doi.org/10.3390/ani16030375</a></li>
+<li>More Than Human Life (MOTH) Program, NYU School of Law. (2025). Listening to our animal kin: Legal and ethical principles for nonhuman animal communication technologies (the PEPP Framework). <a href="https://mothlife.org/wp-content/uploads/2025/11/Listening-to-Our-Animal-Kin_MOTH-Report.pdf" target="_blank" rel="noopener">https://mothlife.org/wp-content/uploads/2025/11/Listening-to-Our-Animal-Kin_MOTH-Report.pdf</a></li>
+<li>Rodr&#237;guez-Garavito, C., Gruber, D. F., Nemeth, A. O., &amp; Beguš, G. (2025). What if we understood what animals are saying? The legal impact of AI-assisted studies of animal communication. Ecology Law Quarterly, 52(1), 123–. <a href="https://doi.org/10.15779/Z383X83N5Q" target="_blank" rel="noopener">https://doi.org/10.15779/Z383X83N5Q</a></li>
+<li>Ryan, M., &amp; Bossert, L. N. (2024). Dr. Doolittle uses AI: Ethical challenges of trying to speak whale. Biological Conservation, 295, Article 110648. <a href="https://doi.org/10.1016/j.biocon.2024.110648" target="_blank" rel="noopener">https://doi.org/10.1016/j.biocon.2024.110648</a></li>
+<li>Singer, P., &amp; Tse, Y. F. (2023). AI ethics: The case for including animals. AI and Ethics, 3, 539–551. <a href="https://doi.org/10.1007/s43681-022-00187-z" target="_blank" rel="noopener">https://doi.org/10.1007/s43681-022-00187-z</a></li>
+</ul>
+
+  </article>
+</section>
+
+<!-- ============ PRIVACY AND DATA ============ -->
+<section data-route="privacy" hidden class="s-wrap" aria-labelledby="p-title">
+  <div class="s-col">
+    <div class="s-sec">
+      <span class="s-eyebrow">Privacy and data</span>
+      <h1 id="p-title" style="font-size:clamp(1.9rem, 5vw, 2.8rem)">Your games, without your name</h1>
+      <p class="s-lead">If you agree, we save the choices you make in The future and the world you end up building, and keep them for 12 months. We never collect personal data.</p>
+    </div>
+
+    <section class="s-sec">
+      <h2>What we save</h2>
+      <dl class="s-def">
+        <dt>The future</dt><dd>Your role, the species translated first, the randomness level you chose, each decision you make, the scenes you reach, and your world in 2050.</dd>
+        <dt>Also</dt><dd>The date you played (the day only) and a random game number.</dd>
+        <dt>The present</dt><dd>Nothing. It is a tool for exploring the ethics literature, and nothing you do there is saved.</dd>
+      </dl>
+    </section>
+
+    <section class="s-sec">
+      <h2>What we never save</h2>
+      <p>Your name, email address, account details, location, or anything you type. This site adds no tracking or analytics of its own.</p>
+    </section>
+
+    <section class="s-sec">
+      <h2>Why we save it</h2>
+      <p>To give everyone a sense of how humans are approaching communication with other species right now: for example, in how many worlds animals end up worse off or lose their freedom, and in how many there is open conflict. The results are below, and the report at the end of The future compares your world with everyone else's.</p>
+    </section>
+
+    <section class="s-sec">
+      <h2>Your choice</h2>
+      <p>We ask before your first game of The future. You can change your answer here at any time; it is remembered in this browser only.</p>
+      <div class="s-note s-sec" style="gap:10px">
+        <p>On this device: <strong id="consent-status">Not decided yet</strong></p>
+        <div class="s-row"><button class="s-btn s-btn-ink s-btn-sm" type="button" data-consent-set="yes" aria-pressed="false">Save my games</button><button class="s-btn s-btn-soft s-btn-sm" type="button" data-consent-set="no" aria-pressed="false">Don't save my games</button></div>
+      </div>
+    </section>
+
+    <section class="s-sec">
+      <h2>Where it is kept</h2>
+      <p>The site is hosted on GitHub Pages, and saved games are kept in a Google Cloud Firestore database (part of Google's Firebase) that only the project team can manage. Saving works for every visitor who says OK. Like any website, the services that run it, GitHub for the pages and Google for the database and the fonts, receive your device's IP address when you load the site or save a game. It is not part of the games we save.</p>
+    </section>
+
+    <section class="s-sec">
+      <h2>How long we keep it</h2>
+      <p>We keep each saved game for 12 months, then delete it.</p>
+    </section>
+
+    <section class="s-sec">
+      <h2>Questions</h2>
+      <div class="s-contact">
+        <p>For questions about the data, or to share research that should inform the game:</p>
+        <div class="s-row"><span class="s-addr">interspeciestranslation(at)gmail(dot)com</span><button class="s-btn s-btn-soft s-btn-sm" type="button" data-copy-email><span class="s-copy-label">Copy address</span></button></div>
+      </div>
+    </section>
+
+    <section class="s-sec" id="results">
+      <h2>What players are building</h2>
+      <p class="s-small s-muted">Worlds in 2050 from games of The future.</p>
+      <div id="stats-future" class="s-sec"><p class="s-muted s-small">Loading saved games…</p></div>
+    </section>
+  </div>
+</section>
+</main>
+
+<footer class="s-footer">
+  <div class="s-footer-in">
+    <span>An Interspecies World · A Sentient Futures fellowship project</span>
+    <span>Prototype, November 2026 · <a href="#methodology">Methodology</a> · <a href="#privacy">Privacy and data</a></span>
+  </div>
+</footer>
+
+<!-- Consent pop-up, shown before the first game -->
+<div class="s-modal" id="consent" hidden>
+  <div class="s-modal-card" role="dialog" aria-modal="true" aria-labelledby="consent-title" aria-describedby="consent-text">
+    <span class="s-eyebrow">Before you play</span>
+    <h2 id="consent-title">Can we save your game?</h2>
+    <p id="consent-text">If you say OK, we save the choices you make in the game and the world you end up building. No personal data: no name, no email, no account details, nothing you type. We keep each saved game for 12 months.</p>
+    <p class="s-small s-muted">The saved games show how people are approaching communication with other species right now, for example in how many worlds animals lose their freedom, or end up in open conflict with humans.</p>
+    <div class="s-modal-actions">
+      <button class="s-btn s-btn-ink" type="button" data-consent="yes">OK</button>
+      <button class="s-btn s-btn-soft" type="button" data-consent="no">Opt out</button>
+    </div>
+    <p class="s-small s-muted">You can change this at any time on the <a href="#privacy" data-consent-link>Privacy and data</a> page.</p>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="engine.js"></script>
+<script src="content.js"></script>
+<script src="present.js"></script>
+<script src="future.js"></script>
+<script src="site.js"></script>
+
+</body>
+</html>
